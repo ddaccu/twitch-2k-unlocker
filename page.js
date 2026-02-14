@@ -25,7 +25,6 @@
     const proxyBase = PROXY_URL.replace(/\/+$/, "");
 
     const NATIVE_FETCH = window.fetch.bind(window);
-    const GQL_URL = "https://gql.twitch.tv/gql";
     const USHER_HOST = "usher.ttvnw.net";
 
     console.log(TAG, "Fetch interceptor active. Proxy:", proxyBase);
@@ -57,30 +56,29 @@
                 if (bodyText && bodyText.includes("PlaybackAccessToken")) {
                     console.log(TAG, "Intercepted PlaybackAccessToken request");
 
-                    // Build proxied request
-                    const proxyUrl = `${proxyBase}/gql`;
+                    // Extract headers from original request
                     const headers = extractHeaders(input, init);
 
+                    // Bundle everything into request body (no custom headers = no CORS preflight)
+                    const proxyPayload = JSON.stringify({
+                        type: "gql",
+                        body: bodyText,
+                        clientId: headers["Client-ID"] || headers["client-id"] || "kimne78kx3ncx6brgo4mv6wki5h1ko",
+                        auth: headers["Authorization"] || headers["authorization"] || "",
+                        deviceId: headers["Device-ID"] || headers["device-id"] || "",
+                    });
+
                     try {
-                        const proxyResponse = await NATIVE_FETCH(proxyUrl, {
+                        const proxyResponse = await NATIVE_FETCH(proxyBase, {
                             method: "POST",
-                            headers: {
-                                "Content-Type": "text/plain; charset=UTF-8",
-                                "X-TTV-GQL-Body": bodyText,
-                                "X-TTV-Client-ID":
-                                    headers["Client-ID"] || headers["client-id"] || "kimne78kx3ncx6brgo4mv6wki5h1ko",
-                                "X-TTV-Auth":
-                                    headers["Authorization"] || headers["authorization"] || "",
-                                "X-TTV-Device-ID":
-                                    headers["Device-ID"] || headers["device-id"] || "",
-                            },
-                            body: bodyText,
+                            body: proxyPayload,
                         });
 
                         if (proxyResponse.ok) {
                             console.log(TAG, "PlaybackAccessToken proxied successfully");
-                            // Return the response as-is; it contains the US-region token
                             return proxyResponse;
+                        } else {
+                            console.warn(TAG, "Proxy returned", proxyResponse.status);
                         }
                     } catch (err) {
                         console.warn(TAG, "Proxy failed for GQL, falling back to direct:", err);
@@ -92,13 +90,22 @@
             if (url.includes(USHER_HOST)) {
                 console.log(TAG, "Intercepted Usher request");
 
-                const proxyUrl = `${proxyBase}/usher?url=${encodeURIComponent(url)}`;
+                const proxyPayload = JSON.stringify({
+                    type: "usher",
+                    url: url,
+                });
 
                 try {
-                    const proxyResponse = await NATIVE_FETCH(proxyUrl);
+                    const proxyResponse = await NATIVE_FETCH(proxyBase, {
+                        method: "POST",
+                        body: proxyPayload,
+                    });
+
                     if (proxyResponse.ok) {
                         console.log(TAG, "Usher request proxied successfully");
                         return proxyResponse;
+                    } else {
+                        console.warn(TAG, "Proxy returned", proxyResponse.status);
                     }
                 } catch (err) {
                     console.warn(TAG, "Proxy failed for Usher, falling back to direct:", err);
