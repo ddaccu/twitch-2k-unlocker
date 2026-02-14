@@ -12,8 +12,9 @@
     if (!state.enabled) return;
 
     // Inject the page script with the proxy URL
+    // Cache-bust with timestamp to avoid stale cached versions
     const script = document.createElement("script");
-    script.src = chrome.runtime.getURL("page.js");
+    script.src = chrome.runtime.getURL("page.js") + "?v=" + Date.now();
     script.dataset.proxyUrl = state.proxyUrl || "";
     (document.head || document.documentElement).appendChild(script);
     script.onload = () => script.remove();
