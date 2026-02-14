@@ -2,59 +2,51 @@
 // Twitch 2K Quality Unlocker — Popup Script
 // ============================================================
 
-const toggleEl = document.getElementById("toggleBypass");
-const statusEl = document.getElementById("statusText");
-const cdnSelect = document.getElementById("cdnRegion");
+const toggle = document.getElementById("toggle");
+const proxyInput = document.getElementById("proxy-url");
+const statusEl = document.getElementById("status");
+const setupLink = document.getElementById("setup-link");
 
-// ---- Init: load current state ----
+// ---- Load saved state ----
 
-statusEl.classList.add("checking");
-
-chrome.runtime.sendMessage({ action: "getStatus" }, (response) => {
-    if (!response) return;
-
-    statusEl.classList.remove("checking");
-
-    toggleEl.checked = response.enabled;
-    cdnSelect.value = response.cdnRegion || "auto";
-
-    updateStatusText(response.enabled);
+chrome.runtime.sendMessage({ action: "getStatus" }, (res) => {
+    if (!res) return;
+    toggle.checked = res.enabled;
+    proxyInput.value = res.proxyUrl || "";
+    updateStatusText(res.enabled);
 });
 
 // ---- Toggle handler ----
 
-toggleEl.addEventListener("change", () => {
-    const enabled = toggleEl.checked;
+toggle.addEventListener("change", () => {
+    const enabled = toggle.checked;
+    const proxyUrl = proxyInput.value.trim();
 
-    if (enabled) {
-        chrome.runtime.sendMessage(
-            { action: "enable", cdnRegion: cdnSelect.value },
-            () => updateStatusText(true)
-        );
-    } else {
-        chrome.runtime.sendMessage({ action: "disable" }, () =>
-            updateStatusText(false)
-        );
+    if (enabled && !proxyUrl) {
+        toggle.checked = false;
+        proxyInput.focus();
+        proxyInput.style.borderColor = "#f55";
+        setTimeout(() => (proxyInput.style.borderColor = ""), 1500);
+        return;
     }
-});
 
-// ---- CDN region change ----
-
-cdnSelect.addEventListener("change", () => {
-    if (!toggleEl.checked) return;
-
-    // Re-enable with new CDN region
-    chrome.runtime.sendMessage({
-        action: "enable",
-        cdnRegion: cdnSelect.value,
+    const action = enabled ? "enable" : "disable";
+    chrome.runtime.sendMessage({ action, proxyUrl }, () => {
+        updateStatusText(enabled);
     });
 });
 
-// ---- Helpers ----
+// ---- Save proxy URL on blur ----
+
+proxyInput.addEventListener("blur", () => {
+    const proxyUrl = proxyInput.value.trim();
+    chrome.storage.local.set({ proxyUrl });
+});
+
+// ---- Status text ----
 
 function updateStatusText(enabled) {
-    statusEl.classList.remove("active", "inactive", "checking");
-
+    statusEl.classList.remove("active", "inactive");
     if (enabled) {
         statusEl.textContent = "Active — 2K quality unlocked";
         statusEl.classList.add("active");
@@ -63,3 +55,12 @@ function updateStatusText(enabled) {
         statusEl.classList.add("inactive");
     }
 }
+
+// ---- Setup link ----
+
+setupLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    chrome.tabs.create({
+        url: "https://github.com/ddaccu/twitch-2k-unlocker#deploy-the-relay-worker",
+    });
+});

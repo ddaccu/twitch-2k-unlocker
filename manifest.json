@@ -1,19 +1,40 @@
 {
   "manifest_version": 3,
   "name": "Twitch 2K Quality Unlocker",
-  "version": "1.0.0",
-  "description": "Unlock 2K (1440p) quality on Twitch without VPN or proxy",
+  "version": "2.0.0",
+  "description": "Unlock 2K (1440p) quality on Twitch without VPN. Routes only metadata requests through a relay proxy.",
   "permissions": [
-    "declarativeNetRequest",
-    "declarativeNetRequestFeedback",
     "storage"
   ],
   "host_permissions": [
-    "*://usher.ttvnw.net/*"
+    "https://www.twitch.tv/*",
+    "https://gql.twitch.tv/*",
+    "https://usher.ttvnw.net/*"
   ],
   "background": {
     "service_worker": "background.js"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "https://www.twitch.tv/*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "page.js"
+      ],
+      "matches": [
+        "https://www.twitch.tv/*"
+      ]
+    }
+  ],
   "action": {
     "default_popup": "popup.html",
     "default_icon": {

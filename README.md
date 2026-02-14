@@ -1,56 +1,77 @@
 # Twitch 2K Quality Unlocker
 
-Chrome extension that unlocks 2K (1440p) quality on Twitch **without VPN or proxy**.
+Chrome extension that unlocks 2K (1440p) quality on Twitch **without VPN**.
 
 ![Extension Icon](icons/icon128.png)
 
 ## How It Works
 
-Twitch restricts 2K quality by region. This extension modifies only the **playlist request** (~2 KB) — the actual video stream flows directly with zero latency impact.
+Twitch restricts 1440p quality by region. This extension proxies **only the playlist metadata** (~2 KB) through a Cloudflare Worker you deploy — the actual video stream flows directly with **zero latency impact**.
 
-Two `declarativeNetRequest` rules target `usher.ttvnw.net`:
+```
+Browser                    Cloudflare Worker (US)         Twitch
+  │                              │                          │
+  ├─ PlaybackAccessToken req ───►├─ forward to GQL ────────►│
+  │◄─ US-region token ──────────┤◄─ token response ────────┤
+  │                              │                          │
+  ├─ Usher playlist req ────────►├─ forward to usher ──────►│
+  │◄─ playlist w/ 1440p ────────┤◄─ playlist response ─────┤
+  │                              │                          │
+  ├─ Video stream (direct, no proxy) ──────────────────────►│
+```
 
-| Rule | What it does |
-|------|-------------|
-| `X-Forwarded-For: ::1` | Bypasses geo-restriction check |
-| `force_segment_node` + `force_manifest_node` | Routes to unrestricted CDN node |
+> **Note:** 1440p only appears if the **streamer** broadcasts in 1440p+ with Enhanced Broadcasting enabled.
 
-> **Note:** The 2K option only appears when the **streamer** is broadcasting in 1440p+. If the streamer streams at 1080p, that remains the max quality.
+## Setup
 
-## Installation
+### 1. Deploy the Relay Worker
 
-1. Download or clone this repository
-2. Open Chrome → `chrome://extensions/`
-3. Enable **Developer mode** (toggle in top right)
-4. Click **Load unpacked**
-5. Select the downloaded folder
+1. Create a free [Cloudflare account](https://dash.cloudflare.com/sign-up)
+2. Go to **Workers & Pages** → **Create Worker**
+3. Give it a name (e.g. `twitch-relay`)
+4. Replace the default code with the contents of [`worker.js`](worker.js)
+5. Click **Deploy**
+6. Copy the worker URL (e.g. `https://twitch-relay.yourname.workers.dev`)
 
-## Usage
+> Free tier: 100,000 requests/day — more than enough for personal use.
 
-1. Click the extension icon in the toolbar
-2. Toggle the bypass **ON**
-3. (Optional) Select a CDN region for best latency
-4. **Refresh** any open Twitch stream
-5. Check the quality selector — 1440p should now be available
+### 2. Install the Extension
+
+1. Download from [Releases](https://github.com/ddaccu/twitch-2k-unlocker/releases)
+2. Unzip
+3. Chrome → `chrome://extensions/` → enable **Developer mode**
+4. Click **Load unpacked** → select the unzipped folder
+
+### 3. Configure
+
+1. Click the extension icon
+2. Paste your Worker URL
+3. Toggle **ON**
+4. **Refresh** any Twitch stream → 1440p should appear in quality settings
 
 ## Files
 
 ```
-├── manifest.json      # Extension config (Manifest V3)
-├── background.js      # Service worker — bypass rules
-├── popup.html         # Popup UI
-├── popup.css          # Twitch-themed dark styles
-├── popup.js           # Popup logic
-└── icons/
-    ├── icon16.png
-    ├── icon32.png
-    ├── icon48.png
-    └── icon128.png
+├── manifest.json     # Extension config (Manifest V3)
+├── background.js     # Service worker — state management
+├── content.js        # Content script — injects page.js
+├── page.js           # Fetch interceptor — routes metadata through proxy
+├── popup.html/css/js # Extension popup UI
+├── worker.js         # Cloudflare Worker relay (deploy separately)
+└── icons/            # Extension icons
 ```
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| No 1440p option | Streamer must be broadcasting in 1440p+ |
+| Worker URL error | Make sure URL starts with `https://` |
+| Still blocked | Try deploying worker to a US region in Cloudflare dashboard |
 
 ## Credits
 
-Technique based on [K-Twitch-Bypass](https://github.com/Kwabang/K-Twitch-Bypass).
+Inspired by [TTV LOL PRO](https://github.com/younesaassila/ttv-lol-pro) and [K-Twitch-Bypass](https://github.com/Kwabang/K-Twitch-Bypass).
 
 ## License
 
