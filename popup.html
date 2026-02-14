@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=320">
+  <title>Twitch 2K Unlocker</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <svg class="logo" viewBox="0 0 24 24" width="28" height="28">
+        <path fill="currentColor" d="M11.64 5.93H13.07V10.21H11.64M6.5 5.93H7.93V10.21H6.5M2 2V17.71H6.5V22L10.21 17.71H13.07L20 10.93V2M18.57 10.21L15.86 12.93H13.07L10.57 15.43V12.93H6.5V3.43H18.57Z"/>
+      </svg>
+      <div class="title">
+        <h1>2K Unlocker</h1>
+        <span class="subtitle">Twitch Quality Bypass</span>
+      </div>
+    </div>
+
+    <!-- Main Toggle -->
+    <div class="toggle-section">
+      <div class="toggle-row">
+        <div class="toggle-info">
+          <span class="toggle-label">Quality Bypass</span>
+          <span class="status-text" id="statusText">Checking...</span>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggleBypass">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+
+    <!-- CDN Region Selector -->
+    <div class="settings-section">
+      <label class="select-label" for="cdnRegion">CDN Region</label>
+      <div class="select-wrapper">
+        <select id="cdnRegion">
+          <option value="auto">🌐 Auto</option>
+          <option value="us_west">🇺🇸 US West (San Jose)</option>
+          <option value="us_east">🇺🇸 US East (Washington)</option>
+          <option value="eu_west">🇪🇺 EU West (Amsterdam)</option>
+          <option value="eu_east">🇪🇺 EU East (Frankfurt)</option>
+          <option value="asia">🇯🇵 Asia (Tokyo)</option>
+        </select>
+        <svg class="select-arrow" viewBox="0 0 24 24" width="16" height="16">
+          <path fill="currentColor" d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6z"/>
+        </svg>
+      </div>
+    </div>
+
+    <!-- Info -->
+    <div class="info-section">
+      <div class="info-card">
+        <svg viewBox="0 0 24 24" width="14" height="14">
+          <path fill="currentColor" d="M13 9h-2V7h2m0 10h-2v-6h2m-1-9A10 10 0 0 0 2 12a10 10 0 0 0 10 10 10 10 0 0 0 10-10A10 10 0 0 0 12 2z"/>
+        </svg>
+        <span>Only playlist requests are modified. Video streams directly — zero latency impact.</span>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <span>v1.0.0</span>
+      <span>•</span>
+      <span>Refresh Twitch after toggling</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

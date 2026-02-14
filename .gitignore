@@ -1,0 +1,9 @@
+# Reference / build files
+K-Twitch-Bypass-ref/
+generate-icons.js
+generate-icons.ps1
+node_modules/
+
+# OS
+Thumbs.db
+.DS_Store
