@@ -1,4 +1,4 @@
-# Twitch 2K Quality Unlocker (iPad/iOS & Desktop)
+# Twitch 2K Quality Unlocker
 
 Unlocks 1440p+ quality region-locked streams on Twitch by proxying only auth requests through your own Cloudflare Worker.
 
