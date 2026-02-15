@@ -6,12 +6,9 @@ Unlocks 1440p+ quality region-locked streams on Twitch by proxying only auth req
 - ✅ **Privacy:** You control the proxy (Cloudflare Worker).
 - ✅ **Speed:** Direct video stream (zero added latency).
 - ✅ **Free:** Uses Cloudflare Free Tier.
-- ✅ **Cross-Platform:** Works on Desktop (Chrome/Edge) and iOS/iPad (Safari).
-
 ---
 
-## 1. Setup Relay (Required for all devices)
-
+## 1. Setup Relay
 1. Create a free account at [dash.cloudflare.com](https://dash.cloudflare.com/sign-up).
 2. Go to **Compute (Workers)** → **Create Application** → **Create Worker**.
 3. Name it (e.g., `twitch-relay`) → **Deploy**.
