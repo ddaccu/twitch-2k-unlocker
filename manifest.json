@@ -11,7 +11,13 @@
     "https://gql.twitch.tv/*",
     "https://usher.ttvnw.net/*"
   ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "@twitch-2k-quality-unlocker"
+    }
+  },
   "background": {
+    "scripts": ["background.js"],
     "service_worker": "background.js"
   },
   "content_scripts": [
